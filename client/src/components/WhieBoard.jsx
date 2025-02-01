@@ -1,8 +1,13 @@
-import React, { useRef, useState, useEffect, useContext } from 'react';
+import { useRef, useState, useEffect, useContext } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { AuthContext } from '../contextApi/AuthContext';
+import { IoChevronBackOutline } from 'react-icons/io5';
+import { FaEraser, FaPencilAlt, FaRedo, FaTrash, FaUndo, FaUserCircle } from 'react-icons/fa';
+import RoomUsers from './RoomUsers';
+import JoinOrCreateRoom from './JoinOrCreateRoom';
+import UserProfile from './UserProfile';
 
-const Whiteboard = ({ roomId, setClearCanvas, clearcanvas }) => {
+const Whiteboard = ({ roomId, setClearCanvas, setRoomId, isInARoom, setIsInARoom, clearcanvas }) => {
     const canvasRef = useRef(null);
     const contextRef = useRef(null);
     const [isDrawing, setIsDrawing] = useState(false);
@@ -11,6 +16,9 @@ const Whiteboard = ({ roomId, setClearCanvas, clearcanvas }) => {
     const [currentStroke, setCurrentStroke] = useState([]);
     const [tool, setTool] = useState('pencil');
     const [color, setColor] = useState('#000000');
+    const [isPanelOpen, setIsPanelOpen] = useState(true);
+    const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
+    const [profile, setProfile] = useState(false)
 
     const { socket, user, asyncGetRoomData, asyncStrokeUpload } = useContext(AuthContext);
 
@@ -46,8 +54,6 @@ const Whiteboard = ({ roomId, setClearCanvas, clearcanvas }) => {
             setClearCanvas(false);
         }
     }, [clearcanvas])
-
-
 
     useEffect(() => {
         if (tool === 'eraser') {
@@ -220,60 +226,131 @@ const Whiteboard = ({ roomId, setClearCanvas, clearcanvas }) => {
         redrawCanvas();
     }, [strokes]);
 
+    // const singOutHandler = async () => {
+    //     const res = window.confirm("Do you want to signOut!");
+    //     if (!res) return;
+    //     const result = await asyncSignOut();
+    //     // if (result) navigate("/");
+    // }
+
     return (
-        <div className='relative overflow-hidden w-full h-[100vh]'>
-            <div className="flex flex-col items-center  bg-gray-100">
-                <h1 className='p-5 text-3xl'>Online Colaborative White Board</h1>
-                <div className="flex space-x-4 mb-4">
+        <div className="relative overflow-hidden w-full h-screen bg-gray-100">
+            <h1 className="absolute top-4 left-[50%] text-3xl font-bold text-gray-800">Online Collaborative Whiteboard</h1>
+
+            {/* Floating Side Panel (now on the right) */}
+            <div
+                className={`absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out ${isPanelOpen ? "right-4" : "-right-16"
+                    }`}
+            >
+                <div className="bg-slate-300 rounded-lg shadow-lg p-4 space-y-4">
                     <button
-                        onClick={() => setTool('pencil')}
-                        className={`px-4 py-2 rounded ${tool === 'pencil' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                        onClick={() => setTool("pencil")}
+                        className={`w-10 h-10 flex items-center justify-center rounded-full ${tool === "pencil" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
                             }`}
+                        title="Pencil"
                     >
-                        Pencil
+                        <FaPencilAlt />
                     </button>
                     <button
-                        onClick={() => setTool('eraser')}
-                        className={`px-4 py-2 rounded ${tool === 'eraser' ? 'bg-blue-500 text-white' : 'bg-gray-200'
+                        onClick={() => setTool("eraser")}
+                        className={`w-10 h-10 flex items-center justify-center rounded-full ${tool === "eraser" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
                             }`}
+                        title="Eraser"
                     >
-                        Eraser
+                        <FaEraser />
                     </button>
-                    <input
-                        type="color"
-                        value={color}
-                        onChange={(e) => setColor(e.target.value)}
-                        disabled={tool === 'eraser'}
-                        className="h-10 w-10 cursor-pointer"
-                    />
+                    <div className="flex items-center justify-center">
+                        <input
+                            type="color"
+                            value={color}
+                            onChange={(e) => setColor(e.target.value)}
+                            disabled={tool === "eraser"}
+                            className="h-10 w-10 cursor-pointer rounded-full"
+                            title="Color Picker"
+                        />
+                    </div>
                     <button
                         onClick={handleUndo}
-                        className="px-4 py-2 bg-yellow-500 text-white rounded"
+                        className="w-10 h-10 flex items-center justify-center bg-yellow-500 text-white rounded-full hover:bg-yellow-600"
+                        title="Undo"
                     >
-                        Undo
+                        <FaUndo />
                     </button>
                     <button
                         onClick={handleRedo}
-                        className="px-4 py-2 bg-green-500 text-white rounded"
+                        className="w-10 h-10 flex items-center justify-center bg-green-500 text-white rounded-full hover:bg-green-600"
+                        title="Redo"
                     >
-                        Redo
+                        <FaRedo />
                     </button>
                     <button
                         onClick={clearCanvas}
-                        className="px-4 py-2 bg-red-500 text-white rounded"
+                        className="w-10 h-10 flex items-center justify-center bg-red-500 text-white rounded-full hover:bg-red-600"
+                        title="Clear Board"
                     >
-                        Clear Board
+                        <FaTrash />
                     </button>
                 </div>
+
+                {/* Toggle Panel Button */}
+                <button
+                    onClick={() => setIsPanelOpen(!isPanelOpen)}
+                    className="absolute top-1/2 -left-8 transform -translate-y-1/2 bg-slate-300 rounded-l-lg shadow-lg p-2"
+                >
+                    <IoChevronBackOutline
+                        className={`text-2xl text-gray-700 transition-transform duration-300 ${isPanelOpen ? "rotate-180" : ""}`}
+                    />
+                </button>
             </div>
+            {/* Floating Side Panel (now on the right) */}
+            <div
+                className={`absolute top-1/2 transform -translate-y-1/2 transition-all duration-300 ease-in-out ${isLeftPanelOpen ? "left-4" : "-left-72"
+                    }`}
+            >
+                <div className='p-2 bg-slate-300 rounded-xl'>
+                    <div className="col" onClick={()=>setProfile(true)}>
+                        <div className="flex items-center space-x-3 cursor-pointer group pl-5">
+                            <div className="relative w-12 h-12 rounded-full overflow-hidden group-hover:ring-2 group-hover:ring-blue-400 transition-all duration-300">
+                                {user?.Ava ? (
+                                    <img
+                                        src={"/placeholder.jpg"}
+                                        alt="avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <FaUserCircle className="w-full h-full text-gray-400" />
+                                )}
+                            </div>
+                            <span className="font-medium text-gray-700 group-hover:text-blue-500 transition-colors duration-300">
+                                {user && user?.name}
+                            </span>
+                        </div>
+                    </div>
+                    {isInARoom ? <RoomUsers roomId={roomId} setRoomId={setRoomId} setIsInARoom={setIsInARoom} setClearCanvas={setClearCanvas} /> :
+                        <JoinOrCreateRoom roomId={roomId} setRoomId={setRoomId} setIsInARoom={setIsInARoom} />
+                    }
+                </div>
+
+                {/* Toggle Panel Button */}
+                <button
+                    onClick={() => setIsLeftPanelOpen(!isLeftPanelOpen)}
+                    className="absolute top-1/2 -right-8 transform -translate-y-1/2 bg-slate-300 rounded-r-lg shadow-lg p-2"
+                >
+                    <IoChevronBackOutline
+                        className={`text-2xl text-gray-700 transition-transform duration-300 ${isLeftPanelOpen ? "" : "rotate-180"}`}
+                    />
+                </button>
+            </div>
+
             <canvas
                 ref={canvasRef}
                 onMouseDown={startDrawing}
                 onMouseMove={draw}
                 onMouseUp={stopDrawing}
                 onMouseLeave={stopDrawing}
-                className="bg-white cursor-crosshair"
+                className="bg-white cursor-crosshair w-full h-full"
             />
+            {profile && <UserProfile setProfile={setProfile} />}
         </div>
     );
 };

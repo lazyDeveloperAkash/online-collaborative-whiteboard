@@ -1,4 +1,4 @@
-import React, { createContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useEffect, useMemo, useState } from 'react';
 import Axios from '../utills/Axios'
 import { toast } from 'react-toastify'
 import socketIo from 'socket.io-client';
@@ -12,6 +12,12 @@ export const AuthProvider = ({ children }) => {
 
     const ENDPOINT = 'http://localhost:4040';
     const socket = useMemo(() => socketIo(ENDPOINT, { path: '/socket', transports: ['websocket'] }), []);
+
+    useEffect(() => {
+        asyncloggedInUser()
+    }, [])
+    
+    
 
     const asyncSignUp = async (userData) => {
         setIsLoading(!isLoading);

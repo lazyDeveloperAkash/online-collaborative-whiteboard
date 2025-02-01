@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import { useContext, useState } from "react";
 import { CopyToClipboard } from "react-copy-to-clipboard";
 import { toast } from "react-toastify";
 import { AuthContext } from "../contextApi/AuthContext";
@@ -23,7 +23,7 @@ const JoinOrCreateRoom = ({ roomId, setRoomId, setIsInARoom }) => {
     };
 
     return (
-        <div className="mx-5 mt-5">
+        <div className="mx-5 my-5">
             <div className="col-md-5 p-5 border rounded-xl mx-auto bg-white">
                 <h1 className="text-center text-primary mb-5">Create Room</h1>
                 <form onSubmit={handleCreateSubmit}>

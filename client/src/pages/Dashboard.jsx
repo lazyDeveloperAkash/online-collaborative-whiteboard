@@ -9,23 +9,7 @@ const Dashboard = () => {
   const { user, socket, asyncSignOut, asyncloggedInUser, asyncDeleteRoom } = useContext(AuthContext);
   const [roomId, setRoomId] = useState();
   const [isInARoom, setIsInARoom] = useState(false);
-  const [userdata, setUserdata] = useState(user || null);
   const [clearCanvas, setClearCanvas] = useState(false)
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const callLoggedinUser = async () => {
-      const callUser = await asyncloggedInUser();
-      if (!callUser) {
-        navigate('/');
-        return;
-      }
-    }
-    if (!user) {
-      callLoggedinUser();
-    }
-    setUserdata(user);
-  }, [user])
 
   useEffect(() => {
     if (!user) return;
@@ -55,25 +39,9 @@ const Dashboard = () => {
     }
   }, [])
 
-  const singOutHandler = async () => {
-    const res = window.confirm("Do you want to signOut!");
-    if (!res) return;
-    const result = await asyncSignOut();
-    if (result) navigate("/");
-  }
   return (
     <div className='flex overflow-hidden relative'>
-      <div className="w-[30vw] h-[100vh] pt-10 bg-slate-100">
-        <div className="col">
-          <h1 onClick={singOutHandler} className="text-center py-5 text-xl">
-            {user && userdata?.name}
-          </h1>
-        </div>
-        {isInARoom ? <RoomUsers roomId={roomId} setRoomId={setRoomId} setIsInARoom={setIsInARoom} setClearCanvas={setClearCanvas} /> :
-          <JoinOrCreateRoom roomId={roomId} setRoomId={setRoomId} setIsInARoom={setIsInARoom} />
-        }
-      </div>
-      <Whiteboard roomId={roomId} clearcanvas={clearCanvas} setClearCanvas={setClearCanvas} />
+      <Whiteboard user={user} roomId={roomId} clearcanvas={clearCanvas} setRoomId={setRoomId} isInARoom={isInARoom} setIsInARoom={setIsInARoom} setClearCanvas={setClearCanvas} />
     </div>
   )
 }
