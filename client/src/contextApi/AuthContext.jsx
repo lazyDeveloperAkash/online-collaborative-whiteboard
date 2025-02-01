@@ -40,8 +40,10 @@ export const AuthProvider = ({ children }) => {
         try {
             const { data } = await Axios.get('/');
             setUser(data);
+            console.log(data)
             return data;
         } catch (error) {
+            console.log(error)
             return false;
         }
     }

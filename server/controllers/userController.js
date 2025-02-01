@@ -1,11 +1,13 @@
 const { catchAsyncErrors } = require("../middlewares/catchAsyncErrors");
 const roomModel = require("../models/roomModel");
 const userModel = require("../models/userModel");
+const { getLoggedInUser } = require("../services/userServices");
 const ErrorHandler = require("../utils/errorHandler");
 const { sendToken } = require("../utils/sendToken");
 
 exports.loggedinUser = catchAsyncErrors(async (req, res, next) => {
-    const user = await userModel.findById(req.id);
+    // const user = await userModel.findById(req.id);
+    const user = await getLoggedInUser(req.id);
     res.status(200).json(user)
 })
 

@@ -3,7 +3,7 @@ const express = require('express');
 const app = express();
 
 //database
-require("./models/database").connectDatabase();
+require("./config/database").connectDatabase();
 
 //logger creation
 const logger = require('morgan');
